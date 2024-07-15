@@ -1,23 +1,29 @@
 package baccaro.lucas.com
 
+import auth.ApiResponse
+import auth.LoginRequest
+import auth.UserResponse
 import baccaro.lucas.com.db.DatabaseFactory
-import baccaro.lucas.com.model.LoginRepository
-import baccaro.lucas.com.model.PaymentRepository
-import baccaro.lucas.com.model.RegisterRepository
-import baccaro.lucas.com.model.UserRepository
-import baccaro.lucas.com.plugins.getMembersRoute
-import baccaro.lucas.com.plugins.loginRoute
-import baccaro.lucas.com.plugins.paymentRoutes
-import baccaro.lucas.com.plugins.purposeRoutes
-import baccaro.lucas.com.plugins.registerRoute
+import baccaro.lucas.com.db.Users
+import baccaro.lucas.com.db.login
+import baccaro.lucas.com.db.registerMember
+import baccaro.lucas.com.db.registerOwner
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
+import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun main() {
     DatabaseFactory.init()
@@ -32,17 +38,9 @@ fun Application.module() {
             isLenient = true
         })
     }
-
-    val registerRepository = RegisterRepository()
-    val loginRepository = LoginRepository()
-    val userRepository = UserRepository()
-    val paymentRepository = PaymentRepository()
-
     routing {
-        registerRoute(registerRepository)
-        loginRoute(loginRepository)
-        getMembersRoute(userRepository)
-        paymentRoutes(paymentRepository)
-        purposeRoutes(registerRepository)
+        registerMember()
+        registerOwner()
+        login()
     }
 }

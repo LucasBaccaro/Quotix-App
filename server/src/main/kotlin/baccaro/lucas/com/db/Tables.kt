@@ -8,6 +8,7 @@ object Users : IntIdTable() {
     val email = varchar("email", 255).uniqueIndex()
     val password = varchar("password", 255)
     val role = enumerationByName("role", 10, UserRole::class)
+    val dni = varchar("dni", 20).nullable()
     val inviteCode = varchar("invite_code", 10).nullable()
 }
 
@@ -16,6 +17,7 @@ object Purposes : IntIdTable() {
     val ownerId = reference("owner_id", Users)
     val inviteCode = varchar("invite_code", 10).uniqueIndex()
     val cbu = varchar("cbu", 22)
+    val chargeAmount = decimal("charge_amount", 10, 2)
 }
 
 object Payments : IntIdTable() {
@@ -28,6 +30,5 @@ object Payments : IntIdTable() {
 object MemberPurposeRelations : Table() {
     val memberId = reference("member_id", Users)
     val purposeId = reference("purpose_id", Purposes)
-
     override val primaryKey = PrimaryKey(memberId, purposeId, name = "PK_MemberPurposeRelations")
 }
