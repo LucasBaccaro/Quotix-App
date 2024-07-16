@@ -137,8 +137,23 @@ fun Route.login() {
         val request = call.receive<LoginRequest>()
 
         val user = transaction {
-            Users.select { Users.email eq request.email and (Users.password eq request.password) }
-                .map { it[Users.id].value to it[Users.role] }
+            (Users innerJoin Purposes)
+                .slice(Users.id, Users.role, Users.inviteCode, Purposes.cbu, Purposes.chargeAmount)
+                .select {
+                    (Users.email eq request.email) and
+                            (Users.password eq request.password) and
+                            (Users.inviteCode eq Purposes.inviteCode)
+                }
+                .map {
+                    UserResponse(
+                        it[Users.id].value,
+                        request.email,
+                        it[Users.role],
+                        it[Users.inviteCode],
+                        it[Purposes.cbu],
+                        it[Purposes.chargeAmount].toDouble()
+                    )
+                }
                 .singleOrNull()
         }
 
@@ -147,7 +162,7 @@ fun Route.login() {
                 ApiResponse(
                     true,
                     "Login successful",
-                    UserResponse(user.first, request.email, user.second)
+                    user
                 )
             )
         } else {

@@ -48,7 +48,10 @@ data class ApiResponse<T>(
 data class UserResponse(
     val id: Int,
     val email: String,
-    val role: UserRole
+    val role: UserRole,
+    val inviteCode: String? = null,
+    val cbu: String? = null,
+    val chargeAmount: Double? = null
 )
 
 @Serializable
