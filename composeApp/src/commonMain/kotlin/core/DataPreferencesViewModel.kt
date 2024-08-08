@@ -1,4 +1,4 @@
-package authentication.ui
+package core
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,11 +14,9 @@ class DataPreferencesViewModel(private val preferencesRepository: DataPreference
 
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
-
     init {
         onUiReady()
     }
-
     private fun onUiReady() {
         viewModelScope.launch {
             preferencesRepository.isOnboardingCompleted.collect { completed ->
@@ -26,7 +24,6 @@ class DataPreferencesViewModel(private val preferencesRepository: DataPreference
             }
         }
     }
-
     fun completeOnboarding() {
         viewModelScope.launch {
             preferencesRepository.setOnboardingCompleted(true)

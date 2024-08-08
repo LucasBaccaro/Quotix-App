@@ -10,8 +10,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import authentication.domain.OnboardingPageModel
-import authentication.ui.DataPreferencesViewModel
+import authentication.domain.models.OnboardingPageModel
+import core.DataPreferencesViewModel
 import authentication.ui.screens.components.NavigationButtons
 import authentication.ui.screens.components.OnboardingPager
 import authentication.ui.screens.components.PageIndicator
@@ -61,11 +61,13 @@ fun OnboardingScreen(
 
     OnboardingContent(pages = pages, onStart = {
         dataPreferencesViewModel.completeOnboarding()
-        navController.navigate("authentication") {
+        navController.navigate("create") {
             popUpTo("onboarding") { inclusive = true }
         }
     })
 }
+
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

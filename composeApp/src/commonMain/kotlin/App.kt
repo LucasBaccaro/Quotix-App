@@ -1,26 +1,26 @@
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import authentication.ui.screens.AuthScreen
-import authentication.ui.DataPreferencesViewModel
+import androidx.navigation.navArgument
+import authentication.ui.AuthViewModel
+import authentication.ui.screens.CreateScreen
+import authentication.ui.screens.LoadingScreen
+import authentication.ui.screens.LoginScreen
 import authentication.ui.screens.OnboardingScreen
+import home.ui.HomeScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun App() {
+    val ID = "id"
     val navController = rememberNavController()
+    val authViewModel = koinViewModel<AuthViewModel>()
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
@@ -32,38 +32,26 @@ fun App() {
         composable("onboarding") {
             OnboardingScreen(navController = navController)
         }
-        composable("authentication") {
-            AuthScreen()
+        composable("create") {
+            CreateScreen(
+                authViewModel = authViewModel,
+                onBack = { navController.popBackStack() })
+        }
+        composable("login") {
+            LoginScreen(
+                authViewModel = authViewModel,
+                goToHome = { id ->
+                    navController.navigate("home/$id")
+                },
+                goToCreateAccount = { navController.navigate("create") }
+            )
+        }
+        composable(
+            "home/{$ID}",
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString(ID) ?: ""
+            HomeScreen(id = id)
         }
     }
 }
-
-@OptIn(KoinExperimentalAPI::class)
-@Composable
-fun LoadingScreen(
-    dataPreferencesViewModel: DataPreferencesViewModel = koinViewModel(),
-    navController: NavController
-) {
-    val uiState by dataPreferencesViewModel.state.collectAsState()
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(color = Color.Black)
-    }
-    LaunchedEffect(uiState.isLoading) {
-        if (!uiState.isLoading) {
-            if (uiState.isOnboardingCompleted) {
-                navController.navigate("authentication")
-            } else {
-                navController.navigate("onboarding")
-            }
-        }
-    }
-
-}
-
-
-
-
-
-
-
-

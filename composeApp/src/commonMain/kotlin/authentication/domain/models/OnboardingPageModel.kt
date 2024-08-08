@@ -1,4 +1,4 @@
-package authentication.domain
+package authentication.domain.models
 
 import androidx.compose.ui.graphics.painter.Painter
 

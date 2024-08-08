@@ -1,7 +1,12 @@
 package authentication.data.remote
 
-import auth.LoginRequest
-import auth.User
+import authentication.data.remote.dtos.LoginRequest
+import authentication.data.remote.dtos.LoginResponse
+import authentication.data.remote.dtos.MemberRequest
+import authentication.data.remote.dtos.MemberResponse
+import authentication.data.remote.dtos.OwnerRequest
+import authentication.data.remote.dtos.OwnerResponse
+import core.OperationResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -10,39 +15,46 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class AuthService(private val client: HttpClient) {
-    suspend fun login(loginRequest: LoginRequest): Result<User?> {
+    suspend fun login(loginRequest: LoginRequest): OperationResult<LoginResponse?> {
         return try {
-            val response: User = client.post("/login") {
+            val response: LoginResponse = client.post("/api/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(loginRequest)
+                setBody(
+                    LoginRequest(
+                    email = loginRequest.email,
+                    password = loginRequest.password,
+                )
+                )
+            }.body()
+            OperationResult.Success(response)
+        } catch (e: Exception) {
+            OperationResult.Error("Api Error ${e.message}}")
+        }
+    }
+    suspend fun createAccountMember(memberRequest: MemberRequest): Result<MemberResponse?> {
+        return try {
+            val response: MemberResponse = client.post("/api/users") {
+                contentType(ContentType.Application.Json)
+                setBody(memberRequest)
             }.body()
             Result.success(response)
         } catch (e: Exception) {
+            println(e.message)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun createAccountOwner(ownerRequest: OwnerRequest): Result<OwnerResponse?> {
+        return try {
+            val response: OwnerResponse = client.post("/api/users") {
+                contentType(ContentType.Application.Json)
+                setBody(ownerRequest)
+            }.body()
+            Result.success(response)
+        } catch (e: Exception) {
+            println(e.message)
             Result.failure(e)
         }
     }
 }
-
-class AuthRepository(private val authService: AuthService) {
-    suspend fun login(loginRequest: LoginRequest): Result<User?> {
-        return authService.login(loginRequest)
-    }
-}
-
-class LoginUseCase(private val authRepository: AuthRepository) {
-    suspend operator fun invoke(loginRequest: LoginRequest): Result<User?> {
-        return authRepository.login(loginRequest)
-    }
-}
-
-
-/*suspend fun createAccount(username: String, password: String): Result<User> {
-    return authService.createAccount(username, password)
-}*/
-
-/*class CreateAccountUseCase(private val authRepository: AuthRepository) {
-    suspend operator fun invoke(username: String, password: String): Result<User> {
-        return authRepository.createAccount(username, password)
-    }
-}*/
 

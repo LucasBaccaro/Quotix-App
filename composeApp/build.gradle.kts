@@ -71,6 +71,7 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation("androidx.sqlite:sqlite-bundled:2.5.0-SNAPSHOT")
 
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             //Koin
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)

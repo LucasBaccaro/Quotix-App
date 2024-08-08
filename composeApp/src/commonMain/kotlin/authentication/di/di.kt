@@ -7,14 +7,19 @@ import authentication.data.local.DataPreferencesDao
 import authentication.data.local.DataPreferencesRepository
 import authentication.data.remote.AuthRepository
 import authentication.data.remote.AuthService
-import authentication.data.remote.LoginUseCase
+import authentication.domain.usecases.CreateAccountMemberUseCase
+import authentication.domain.usecases.CreateAccountOwnerUseCase
+import authentication.domain.usecases.LoginUseCase
 import authentication.ui.AuthViewModel
-import authentication.ui.DataPreferencesViewModel
+import core.DataPreferencesViewModel
+import core.getPlatformName
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.header
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import org.koin.compose.viewmodel.dsl.viewModelOf
 import org.koin.core.context.startKoin
@@ -31,28 +36,48 @@ val appModule = module {
     factoryOf(::DataPreferencesRepository)
     viewModelOf(::DataPreferencesViewModel)
 }
+
+@OptIn(ExperimentalSerializationApi::class)
 val authModule = module {
     factoryOf(::AuthRepository)
     factoryOf(::AuthService)
-    single {
+    factory {
         HttpClient {
             install(ContentNegotiation) {
                 json(Json {
+                    prettyPrint = true
+                    isLenient = true
                     ignoreUnknownKeys = true
+                    explicitNulls = false
+                    useAlternativeNames = false
                 })
             }
-            install(DefaultRequest) {
+            defaultRequest {
+                header("Accept", "application/json")
                 url {
                     protocol = URLProtocol.HTTP
-                    host = "10.0.2.2"
-                    port = 8080
+                    host = getBaseUrl()
+                    port = 3000
                 }
             }
         }
     }
     factoryOf(::LoginUseCase)
+    factoryOf(::CreateAccountMemberUseCase)
+    factoryOf(::CreateAccountOwnerUseCase)
     viewModelOf(::AuthViewModel)
 }
+
+fun getBaseUrl(): String {
+    return if (getPlatformName() == "Android") {
+        "10.0.2.2"
+    } else if (getPlatformName() == "iOS") {
+        "127.0.0.1"
+    } else {
+        ""
+    }
+}
+
 expect val nativeModule: Module
 
 fun initKoin(config: KoinAppDeclaration? = null) = run {

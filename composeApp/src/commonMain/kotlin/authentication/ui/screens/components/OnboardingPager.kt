@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import authentication.domain.OnboardingPageModel
+import authentication.domain.models.OnboardingPageModel
 import coreui.PoppinsFontFamily
 
 @OptIn(ExperimentalFoundationApi::class)
