@@ -6,6 +6,7 @@ import authentication.data.remote.dtos.MemberRequest
 import authentication.data.remote.dtos.MemberResponse
 import authentication.data.remote.dtos.OwnerRequest
 import authentication.data.remote.dtos.OwnerResponse
+import authentication.domain.models.DomainLoginResponse
 import core.OperationResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -31,29 +32,29 @@ class AuthService(private val client: HttpClient) {
             OperationResult.Error("Api Error ${e.message}}")
         }
     }
-    suspend fun createAccountMember(memberRequest: MemberRequest): Result<MemberResponse?> {
+    suspend fun createAccountMember(memberRequest: MemberRequest): OperationResult<MemberResponse?> {
         return try {
             val response: MemberResponse = client.post("/api/users") {
                 contentType(ContentType.Application.Json)
                 setBody(memberRequest)
             }.body()
-            Result.success(response)
+            OperationResult.Success(response)
         } catch (e: Exception) {
             println(e.message)
-            Result.failure(e)
+            OperationResult.Error("Api Error ${e.message}}")
         }
     }
 
-    suspend fun createAccountOwner(ownerRequest: OwnerRequest): Result<OwnerResponse?> {
+    suspend fun createAccountOwner(ownerRequest: OwnerRequest): OperationResult<OwnerResponse?> {
         return try {
             val response: OwnerResponse = client.post("/api/users") {
                 contentType(ContentType.Application.Json)
                 setBody(ownerRequest)
             }.body()
-            Result.success(response)
+            OperationResult.Success(response)
         } catch (e: Exception) {
             println(e.message)
-            Result.failure(e)
+            OperationResult.Error("Api Error ${e.message}}")
         }
     }
 }

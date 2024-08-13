@@ -30,8 +30,15 @@ class AuthViewModel(
             val result = loginUseCase(loginRequest)
             _uiState.update {
                 when (result) {
-                    is OperationResult.Success -> it.copy(user = result.data?.user, isLoading = false, error = null)
-                    is OperationResult.Error -> it.copy(isLoading = false, error = result.exception, user = null)
+                    is OperationResult.Success -> it.copy(
+                        user = result.data?.user,
+                        isLoading = false
+                    )
+
+                    is OperationResult.Error -> it.copy(
+                        isLoading = false,
+                        error = result.exception,
+                    )
                 }
             }
         }
@@ -41,7 +48,19 @@ class AuthViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val result = createAccountMemberUseCase(memberRequest)
-            _uiState.update { it.copy(isLoading = false, error = result.exceptionOrNull()?.message) }
+            _uiState.update {
+                when (result) {
+                    is OperationResult.Success -> it.copy(
+                        userId = result.data?.userId.toString(),
+                        isLoading = false,
+                    )
+
+                    is OperationResult.Error -> it.copy(
+                        isLoading = false,
+                        error = result.exception,
+                    )
+                }
+            }
         }
     }
 
@@ -49,7 +68,19 @@ class AuthViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val result = createAccountOwnerUseCase(ownerRequest)
-            _uiState.update { it.copy(isLoading = false, error = result.exceptionOrNull()?.message) }
+            _uiState.update {
+                when (result) {
+                    is OperationResult.Success -> it.copy(
+                        inviteCode = result.data?.inviteCode,
+                        isLoading = false,
+                    )
+
+                    is OperationResult.Error -> it.copy(
+                        isLoading = false,
+                        error = result.exception,
+                    )
+                }
+            }
         }
     }
 }
@@ -57,5 +88,7 @@ class AuthViewModel(
 data class AuthUiState(
     val isLoading: Boolean = false,
     val user: DomainUser? = null,
-    val error: String? = null
+    val error: String? = null,
+    val inviteCode: String? = null,
+    val userId: String? = null
 )

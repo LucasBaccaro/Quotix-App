@@ -14,7 +14,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,12 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import authentication.data.remote.dtos.MemberRequest
 import authentication.data.remote.dtos.OwnerRequest
 import authentication.ui.AuthViewModel
 
 @Composable
-fun CreateScreen(authViewModel: AuthViewModel, onBack: () -> Unit = {}) {
+fun CreateScreen(
+    authViewModel: AuthViewModel,
+    onBack: () -> Unit = {},
+    goToHome: (String) -> Unit = {}
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("member") }
@@ -36,10 +41,20 @@ fun CreateScreen(authViewModel: AuthViewModel, onBack: () -> Unit = {}) {
     var feeAmount by remember { mutableStateOf("") }
     var inviteCode by remember { mutableStateOf("") }
 
-    val state = authViewModel.uiState.collectAsState()
+    val state = authViewModel.uiState.collectAsStateWithLifecycle().value
 
-    if (state.value.isLoading) {
+    if (state.isLoading) {
         CircularProgressIndicator()
+    }
+
+    LaunchedEffect(state.inviteCode) {
+        state.inviteCode?.let {
+            goToHome(it)
+        }
+    }
+
+    LaunchedEffect(state.userId) {
+        goToHome(state.userId.toString())
     }
 
     Column(
