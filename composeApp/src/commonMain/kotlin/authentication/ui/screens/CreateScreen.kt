@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import authentication.data.remote.dtos.MemberRequest
 import authentication.data.remote.dtos.OwnerRequest
+import authentication.ui.AuthUiState
 import authentication.ui.AuthViewModel
 
 @Composable
@@ -44,10 +45,6 @@ fun CreateScreen(
 
     val state = authViewModel.uiState.collectAsStateWithLifecycle().value
 
-    if (state.isLoading) {
-        CircularProgressIndicator()
-    }
-
     LaunchedEffect(state.userId) {
         state.userId?.let {
             goToHome(it)
@@ -55,6 +52,58 @@ fun CreateScreen(
         }
     }
 
+    when {
+        state.isLoading -> {
+            CircularProgressIndicator()
+        }
+        else -> {
+            CreateContent(
+                username = username,
+                password = password,
+                role = role,
+                purposeName = purposeName,
+                feeAmount = feeAmount,
+                inviteCode = inviteCode,
+                onUsernameChange = { username = it },
+                onPasswordChange = { password = it },
+                onRoleChange = { role = it },
+                onPurposeNameChange = { purposeName = it },
+                onFeeAmountChange = { feeAmount = it },
+                onInviteCodeChange = { inviteCode = it },
+                onCreateAccount = {
+                    if (role == "owner") {
+                        authViewModel.createAccountOwner(
+                            OwnerRequest(username, password, role, purposeName, feeAmount.toDouble())
+                        )
+                    } else {
+                        authViewModel.createAccountMember(
+                            MemberRequest(username, password, role, inviteCode)
+                        )
+                    }
+                },
+                state = state
+            )
+        }
+    }
+}
+
+@Composable
+fun CreateContent(
+    username: String,
+    password: String,
+    role: String,
+    purposeName: String,
+    feeAmount: String,
+    inviteCode: String,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onRoleChange: (String) -> Unit,
+    onPurposeNameChange: (String) -> Unit,
+    onFeeAmountChange: (String) -> Unit,
+    onInviteCodeChange: (String) -> Unit,
+    onCreateAccount: () -> Unit,
+    state: AuthUiState
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,93 +113,60 @@ fun CreateScreen(
     ) {
         TextField(
             value = username,
-            onValueChange = { username = it },
+            onValueChange = onUsernameChange,
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = onPasswordChange,
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
             Text("Role: ")
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { role = "owner" }) {
-                Text("Owner")
-            }
+            Button(onClick = { onRoleChange("owner") }) { Text("Owner") }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { role = "member" }) {
-                Text("Member")
-            }
+            Button(onClick = { onRoleChange("member") }) { Text("Member") }
         }
         Spacer(modifier = Modifier.height(8.dp))
 
         if (role == "owner") {
             TextField(
                 value = purposeName,
-                onValueChange = { purposeName = it },
+                onValueChange = onPurposeNameChange,
                 label = { Text("Purpose Name") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = feeAmount,
-                onValueChange = { feeAmount = it },
+                onValueChange = onFeeAmountChange,
                 label = { Text("Fee Amount") },
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
             TextField(
                 value = inviteCode,
-                onValueChange = { inviteCode = it },
+                onValueChange = onInviteCodeChange,
                 label = { Text("Invite Code") },
                 modifier = Modifier.fillMaxWidth()
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                if (role == "owner") {
-                    authViewModel.createAccountOwner(
-                        OwnerRequest(
-                            email = username,
-                            password = password,
-                            role = "owner",
-                            purposeName = purposeName,
-                            feeAmount = feeAmount.toDouble()
-                        )
-                    )
-                } else {
-                    authViewModel.createAccountMember(
-                        MemberRequest(
-                            email = username,
-                            password = password,
-                            role = "member",
-                            inviteCode = inviteCode
-                        )
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Button(onClick = onCreateAccount, modifier = Modifier.fillMaxWidth()) {
             Text("Create account")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        if (state.error != null) {
-            Text(state.error.toString(), color = Color.Red)
-        }
-        if (state.message != null) {
-            Text(state.message.toString(), color = Color.Red)
-        }
+        state.error?.let { Text(it.toString(), color = Color.Red) }
+        state.message?.let { Text(it.toString(), color = Color.Green) }
     }
 }
 

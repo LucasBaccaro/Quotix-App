@@ -42,20 +42,12 @@ fun OnboardingScreen(
         OnboardingPageModel(
             image = painterResource(Res.drawable.ob2),
             title = "Funcionalidades claves",
-            steps = listOf(
-                "Creación de entidades",
-                "Gestión de socios",
-                "Cobros mensuales"
-            )
+            steps = listOf("Creación de entidades", "Gestión de socios", "Cobros mensuales")
         ),
         OnboardingPageModel(
             image = painterResource(Res.drawable.ob3),
             title = "Beneficios de usar Quotix",
-            steps = listOf(
-                "Organización de tu entidad",
-                "Máximo control y seguridad",
-                "Facilidad de uso"
-            )
+            steps = listOf("Organización de tu entidad", "Máximo control y seguridad", "Facilidad de uso")
         )
     )
 

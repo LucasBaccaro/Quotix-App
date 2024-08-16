@@ -24,6 +24,7 @@ fun App() {
 fun StartNavigation() {
     val navController = rememberNavController()
     val authViewModel = koinViewModel<AuthViewModel>()
+
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,

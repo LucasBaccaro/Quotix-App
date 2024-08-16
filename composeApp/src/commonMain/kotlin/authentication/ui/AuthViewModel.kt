@@ -74,6 +74,7 @@ class AuthViewModel(
                 when (result) {
                     is OperationResult.Success -> it.copy(
                         inviteCode = result.data?.inviteCode,
+                        userId = result.data?.userId.toString(),
                         isLoading = false,
                         message = result.data?.message
                     )

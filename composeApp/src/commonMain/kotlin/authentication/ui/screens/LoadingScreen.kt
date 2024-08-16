@@ -24,15 +24,16 @@ fun LoadingScreen(
     navController: NavController
 ) {
     val uiState by dataPreferencesViewModel.state.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator(color = Color.Black)
     }
+
     LaunchedEffect(uiState.isLoading) {
         if (!uiState.isLoading) {
-            if (uiState.isOnboardingCompleted) {
-                navController.navigate(Login)
-            } else {
-                navController.navigate(Onboarding)
+            when {
+                uiState.isOnboardingCompleted -> navController.navigate(Login)
+                else -> navController.navigate(Onboarding)
             }
         }
     }

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import authentication.data.remote.dtos.LoginRequest
+import authentication.ui.AuthUiState
 import authentication.ui.AuthViewModel
 
 @Composable
@@ -44,51 +45,65 @@ fun LoginScreen(
         }
     }
 
-    if (state.isLoading) {
-        CircularProgressIndicator()
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { authViewModel.login(LoginRequest(username, password)) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Login")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = goToCreateAccount,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Create Account")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            if (state.error != null) {
-                Text(state.error.toString(), color = Color.Red)
-            }
-            if (state.message != null) {
-                Text(state.message.toString(), color = Color.Red)
-            }
+    when {
+        state.isLoading -> {
+            CircularProgressIndicator()
         }
+        else -> {
+            LoginContent(
+                username = username,
+                password = password,
+                onUsernameChange = { username = it },
+                onPasswordChange = { password = it },
+                onLogin = { authViewModel.login(LoginRequest(username, password)) },
+                goToCreateAccount = goToCreateAccount,
+                state = state
+            )
+        }
+    }
+}
+
+@Composable
+fun LoginContent(
+    username: String,
+    password: String,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLogin: () -> Unit,
+    goToCreateAccount: () -> Unit,
+    state: AuthUiState
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            value = username,
+            onValueChange = onUsernameChange,
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            label = { Text("Password") },
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = PasswordVisualTransformation()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onLogin, modifier = Modifier.fillMaxWidth()) {
+            Text("Login")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = goToCreateAccount, modifier = Modifier.fillMaxWidth()) {
+            Text("Create Account")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        state.error?.let { Text(it.toString(), color = Color.Red) }
+        state.message?.let { Text(it.toString(), color = Color.Green) }
     }
 }
