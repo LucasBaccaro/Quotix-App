@@ -32,7 +32,8 @@ class AuthViewModel(
                 when (result) {
                     is OperationResult.Success -> it.copy(
                         user = result.data?.user,
-                        isLoading = false
+                        isLoading = false,
+                        message = result.data?.message
                     )
 
                     is OperationResult.Error -> it.copy(
@@ -53,6 +54,7 @@ class AuthViewModel(
                     is OperationResult.Success -> it.copy(
                         userId = result.data?.userId.toString(),
                         isLoading = false,
+                        message = result.data?.message
                     )
 
                     is OperationResult.Error -> it.copy(
@@ -73,6 +75,7 @@ class AuthViewModel(
                     is OperationResult.Success -> it.copy(
                         inviteCode = result.data?.inviteCode,
                         isLoading = false,
+                        message = result.data?.message
                     )
 
                     is OperationResult.Error -> it.copy(
@@ -83,6 +86,12 @@ class AuthViewModel(
             }
         }
     }
+
+    fun cleanState() {
+        _uiState.update {
+            it.copy(user = null, error = null, inviteCode = null, userId = null)
+        }
+    }
 }
 
 data class AuthUiState(
@@ -90,5 +99,6 @@ data class AuthUiState(
     val user: DomainUser? = null,
     val error: String? = null,
     val inviteCode: String? = null,
-    val userId: String? = null
+    val userId: String? = null,
+    val message: String? = null
 )

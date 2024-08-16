@@ -30,7 +30,7 @@ import quotix.composeapp.generated.resources.welcome
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun OnboardingScreen(
-    navController: NavController,
+    goToCreate: () -> Unit,
     dataPreferencesViewModel: DataPreferencesViewModel = koinViewModel()
 ) {
     val pages = listOf(
@@ -61,9 +61,7 @@ fun OnboardingScreen(
 
     OnboardingContent(pages = pages, onStart = {
         dataPreferencesViewModel.completeOnboarding()
-        navController.navigate("create") {
-            popUpTo("onboarding") { inclusive = true }
-        }
+        goToCreate()
     })
 }
 

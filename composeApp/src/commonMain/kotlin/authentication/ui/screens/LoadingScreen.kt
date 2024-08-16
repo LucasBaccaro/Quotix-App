@@ -1,5 +1,7 @@
 package authentication.ui.screens
 
+import Login
+import Onboarding
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
@@ -28,9 +30,9 @@ fun LoadingScreen(
     LaunchedEffect(uiState.isLoading) {
         if (!uiState.isLoading) {
             if (uiState.isOnboardingCompleted) {
-                navController.navigate("login")
+                navController.navigate(Login)
             } else {
-                navController.navigate("onboarding")
+                navController.navigate(Onboarding)
             }
         }
     }

@@ -40,6 +40,7 @@ fun LoginScreen(
     LaunchedEffect(state.user) {
         state.user?.let {
             goToHome(it.id.toString())
+            authViewModel.cleanState()
         }
     }
 
@@ -84,6 +85,9 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
             if (state.error != null) {
                 Text(state.error.toString(), color = Color.Red)
+            }
+            if (state.message != null) {
+                Text(state.message.toString(), color = Color.Red)
             }
         }
     }

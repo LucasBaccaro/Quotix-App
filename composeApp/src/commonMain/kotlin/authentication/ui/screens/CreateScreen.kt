@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,14 +48,11 @@ fun CreateScreen(
         CircularProgressIndicator()
     }
 
-    LaunchedEffect(state.inviteCode) {
-        state.inviteCode?.let {
-            goToHome(it)
-        }
-    }
-
     LaunchedEffect(state.userId) {
-        goToHome(state.userId.toString())
+        state.userId?.let {
+            goToHome(it)
+            authViewModel.cleanState()
+        }
     }
 
     Column(
@@ -147,6 +145,12 @@ fun CreateScreen(
             Text("Create account")
         }
         Spacer(modifier = Modifier.height(8.dp))
+        if (state.error != null) {
+            Text(state.error.toString(), color = Color.Red)
+        }
+        if (state.message != null) {
+            Text(state.message.toString(), color = Color.Red)
+        }
     }
 }
 
